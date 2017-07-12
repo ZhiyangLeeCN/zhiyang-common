@@ -1,4 +1,4 @@
-package org.zhiyang.common.concurrent;
+package com.github.zhiyangleecn.concurrent;
 
 import org.jetbrains.annotations.NotNull;
 

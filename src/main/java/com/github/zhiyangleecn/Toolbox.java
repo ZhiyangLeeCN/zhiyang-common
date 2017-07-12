@@ -1,9 +1,9 @@
-package org.zhiyang.common;
+package com.github.zhiyangleecn;
 
 import org.apache.commons.cli.*;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-import org.zhiyang.common.annotation.ImportantField;
+import com.github.zhiyangleecn.annotation.ImportantField;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
