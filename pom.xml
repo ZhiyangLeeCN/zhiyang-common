@@ -11,6 +11,12 @@
     <name>Zhiyang Common ${project.version}</name>
     <url>https://github.com/ZhiyangLeeCN/zhiyang-common</url>
 
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
     <developers>
         <developer>
             <name>Zhiyang Li</name>
