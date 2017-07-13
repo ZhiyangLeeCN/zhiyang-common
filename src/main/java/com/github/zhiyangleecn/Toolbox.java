@@ -1,17 +1,22 @@
 package com.github.zhiyangleecn;
 
 import org.apache.commons.cli.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import com.github.zhiyangleecn.annotation.ImportantField;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 /**
  * @author lizhiyang
@@ -22,6 +27,30 @@ public class Toolbox {
         System.exit(status);
     }
 
+    public static void msg(String m) {
+        System.out.println(m);
+    }
+
+    public static String banner(String msg) {
+        return "---------------- " + msg + " ----------------";
+    }
+
+    public static String printMem(long bytes) {
+        double dbytes = (double) bytes;
+        DecimalFormat df = new DecimalFormat("#.##");
+
+        if (dbytes < 1024) {
+            return df.format(bytes);
+        } else if (dbytes < 1024 * 1024) {
+            return df.format(dbytes / 1024);
+        } else if (dbytes < 1024 * 1024 * 1024) {
+            return df.format(dbytes / 1024 / 1024) + "M";
+        } else if (dbytes < 1024 * 1024 * 1024 * 1024L) {
+            return df.format(dbytes / 1024 / 1024 / 1024) + "G";
+        } else {
+            return "Too big to show you";
+        }
+    }
 
     public static void die(String msg) {
         die(msg, null);
@@ -240,6 +269,88 @@ public class Toolbox {
                 }
             }
         }
+    }
+
+    @NotNull
+    public static String formatTime(long millis) {
+        long sec = millis / 1000;
+        long min = sec / 60;
+        sec = sec % 60;
+        long hr = min / 60;
+        min = min % 60;
+
+        return hr + ":" + min + ":" + sec;
+    }
+
+    public static boolean deleteDirectory(String directory)
+    {
+        return deleteDirectory(new File(directory));
+    }
+
+    public static boolean deleteDirectory(File directory)
+    {
+        if (directory.exists()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    if (f.isDirectory()) {
+                        deleteDirectory(f);
+                    } else {
+                        f.delete();
+                    }
+                }
+            }
+        }
+        return directory.delete();
+    }
+
+    public static boolean deleteFile(String file)
+    {
+        return new File(file).delete();
+    }
+
+    public static void sleep(long millis)
+    {
+        try
+        {
+            Thread.sleep(millis);
+        } catch (InterruptedException e)
+        {
+        }
+    }
+
+    public static String newSessionId() {
+        return UUID.randomUUID().toString();
+    }
+
+    public static String getGCStats() {
+        long totalGC = 0;
+        long gcTime = 0;
+
+        for (GarbageCollectorMXBean gc : ManagementFactory.getGarbageCollectorMXBeans()) {
+            long count = gc.getCollectionCount();
+
+            if (count >= 0) {
+                totalGC += count;
+            }
+
+            long time = gc.getCollectionTime();
+
+            if (time >= 0) {
+                gcTime += time;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(banner("memory stats"));
+        sb.append("\n- total collections: " + totalGC);
+        sb.append("\n- total collection time: " + formatTime(gcTime));
+
+        Runtime runtime = Runtime.getRuntime();
+        sb.append("\n- total memory: " + printMem(runtime.totalMemory()));
+
+        return sb.toString();
     }
 
 }
